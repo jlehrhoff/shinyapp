@@ -1,2 +1,2 @@
 # shinyapp
-Shiny app to map uber and citibike pickups
+R and RData files to run a Shiny app that maps uber and citibike pickups
