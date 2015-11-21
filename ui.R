@@ -1,3 +1,7 @@
+########
+## UI ##
+########
+
 shinyUI(navbarPage("Getting Around Town",
                    tabPanel("NYC Transportunities!",
                             fluidPage(theme = shinytheme("cosmo"),

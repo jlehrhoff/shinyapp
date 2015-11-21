@@ -1,3 +1,7 @@
+######################
+## Heatmap Function ##
+######################
+
 mapfunc <- function(df){
   m <- map1 + geom_density2d(data=df, aes(x=Lon, y=Lat), color = "grey40") +
     stat_density2d(data=df, aes(x=Lon, y=Lat, fill=..level.., alpha=..level..), 

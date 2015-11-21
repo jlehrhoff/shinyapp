@@ -1,33 +1,73 @@
+############
+## Server ##
+############
+
 source("helpers.R")
 
 shinyServer(function(input,output) {
+  
+  ####################
+  ## Inputs from UI ##
+  ####################
+  
+  ###########
+  ## Tab 2 ##
+  ###########
+  
+  #############
+  ## Picture ##
+  #############
   
   badpic <- reactive({switch(input$rideprob,
                              " " = "blank.png",
                              "Uber" = "uberpic.png",
                              "Citibike" = "citipic.jpg"  )})
   
+  ###########
+  ## Tab 3 ##
+  ###########
+  
+  ##################
+  ## Pick Dataset ##
+  ##################
+  
   ridenum <- reactive({switch(input$transportation2,
                               "Uber" = uberridership,
                               "Citibike" = citiridership) })
+  
+  ##############################################
+  ## Category to be differentiated with color ##
+  ##############################################
   
   color <- reactive({switch(input$sort1,
                             "Weekends" = "weekend",
                             "Drizzly Days" = "drizzle",
                             "Stormy Days" = "downpour",
                             "Hot Days" = "hot") })
-  
+
+  ##############################
+  ## Color Selector (for fun) ##
+  ##############################
+    
   palette <- reactive({switch(input$colors,
                               "Neons!" = c("green2","maroon1"),
                               "Bolds!" = c("goldenrod2", "midnightblue"),
                               "Pastels!" = c("lightblue", "lightgoldenrod1"),
                               "Color Blind!" = c("grey80", "grey25") )})
   
+  ###########
+  ## Tab 4 ##
+  ###########
+  
   ##### Due to performance issues, I'm mapping a random sample of 50000 pickups per month #####
   
   ride <- reactive({ switch(input$transportation,
                             "Uber" = ubersample,
                             "Citibike" = citisample)  })
+  
+  #########################
+  ## Filter by selectors ##
+  #########################
   
   ridefilter2 <- reactive({
   # Month filter
@@ -79,21 +119,24 @@ shinyServer(function(input,output) {
   
   ridefilter <- as.data.frame(ridefilter)
   })
-      
-  heatmap <-  eventReactive(input$goButton, {
-#     withProgress(message = 'Heads up: This might take a while...',
-#                  {
-#       for (i in 1:50) {
-#         incProgress(1/50)
-#         Sys.sleep(0.25)
-#       }})
-    mapfunc(ridefilter2())
-    
-  })
   
-  output$mapa <- renderPlot({
-    heatmap()
-  })
+  ##################
+  ## Output to UI ##
+  ##################
+  
+  ###########
+  ## Tab 2 ##
+  ###########
+  
+  output$badpic <- renderImage({
+    filename <- normalizePath(file.path('./www', badpic()))
+    list(src = filename,
+         alt = badpic())
+  }, deleteFile = FALSE)
+  
+  ###########
+  ## Tab 3 ##
+  ###########  
   
   plot <- reactive({pal <- palette()
   switch(input$plot,
@@ -129,12 +172,22 @@ shinyServer(function(input,output) {
   
   output$plot <- renderPlot({
     plot()
+  })  
+  
+  #######################################
+  ## 2D Density Plot for filtered data ##
+  #######################################
+  
+  ###########
+  ## Tab 4 ##
+  ###########
+  
+  heatmap <-  eventReactive(input$goButton, {
+    mapfunc(ridefilter2())
   })
   
-  output$badpic <- renderImage({
-    filename <- normalizePath(file.path('./www', badpic()))
-    list(src = filename,
-         alt = badpic())
-  }, deleteFile = FALSE)
+  output$mapa <- renderPlot({
+    heatmap()
+  })
   
 }) 
